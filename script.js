@@ -1,0 +1,216 @@
+(() => {
+  const form = document.getElementById('onboardingForm');
+  const pages = [...document.querySelectorAll('.form-step')];
+  const navButtons = [...document.querySelectorAll('.step')];
+  const backBtn = document.getElementById('backBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const saveBtn = document.getElementById('saveBtn');
+  const status = document.getElementById('statusMessage');
+  const progressFill = document.getElementById('progressFill');
+  const stepCount = document.getElementById('stepCount');
+  const progressPercent = document.getElementById('progressPercent');
+  const STORAGE_KEY = 'vgai-client-onboarding-draft-v1';
+  let current = 0;
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  function setStatus(message, error=false) {
+    status.textContent = message;
+    status.style.color = error ? '#ff9aab' : '#72e7ce';
+  }
+  function updateUI() {
+    pages.forEach((page, i) => page.classList.toggle('active', i === current));
+    navButtons.forEach((button, i) => {
+      button.classList.toggle('active', i === current);
+      button.classList.toggle('done', i < current);
+      if (i < current) button.querySelector('.step-num').textContent = '✓';
+      else button.querySelector('.step-num').textContent = String(i + 1);
+    });
+    const percent = Math.round(((current + 1) / pages.length) * 100);
+    progressFill.style.width = percent + '%';
+    stepCount.textContent = `STEP ${current + 1} OF ${pages.length}`;
+    progressPercent.textContent = percent + '%';
+    backBtn.disabled = current === 0;
+    nextBtn.innerHTML = current === pages.length - 1 ? 'Download summary <span>↓</span>' : 'Continue <span>→</span>';
+    if (current === pages.length - 1) buildReview();
+    setStatus('');
+  }
+  function valueOf(el) {
+    if (el.type === 'checkbox') return el.checked;
+    if (el.type === 'file') return [...el.files].map(f => ({name:f.name,size:f.size,type:f.type}));
+    return el.value;
+  }
+  function collectData() {
+    const data = {};
+    [...form.elements].forEach(el => {
+      if (!el.name || el.type === 'button' || el.type === 'file') return;
+      if (el.type === 'checkbox') {
+        if (!data[el.name]) data[el.name] = [];
+        if (el.checked) data[el.name].push(el.value);
+      } else if (el.type === 'radio') {
+        if (el.checked) data[el.name] = el.value;
+      } else data[el.name] = el.value;
+    });
+    data.teamMembers = [...document.querySelectorAll('.team-member-card')].map((card, index) => {
+      const photoInput = card.querySelector('.member-photo-input');
+      const photo = photoInput.files && photoInput.files[0];
+      return {
+        order: index + 1,
+        name: card.querySelector('.member-name').value,
+        qualifications: card.querySelector('.member-qualification').value,
+        role: card.querySelector('.member-role').value,
+        experience: card.querySelector('.member-experience').value,
+        biography: card.querySelector('.member-bio').value,
+        featured: card.querySelector('.member-featured').checked,
+        photo: photo ? {name: photo.name, size: photo.size, type: photo.type} : null
+      };
+    });
+    data.selectedFiles = {};
+    [...form.querySelectorAll('input[type=file]:not(.member-photo-input)')].forEach(el => {
+      data.selectedFiles[el.name] = [...el.files].map(f => ({name:f.name,size:f.size,type:f.type}));
+    });
+    data.savedAt = new Date().toISOString();
+    return data;
+  }
+  function saveDraft() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({current, data:collectData()}));
+      setStatus('Draft saved in this browser on this device.');
+    } catch (e) {
+      setStatus('Could not save draft in this browser. You can still continue.', true);
+    }
+  }
+  function restoreDraft() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (!saved || !saved.data) return;
+      Object.entries(saved.data).forEach(([name, value]) => {
+        if (name === 'selectedFiles' || name === 'savedAt') return;
+        const elements = [...form.querySelectorAll(`[name="${CSS.escape(name)}"]`)];
+        elements.forEach(el => {
+          if (el.type === 'checkbox') el.checked = Array.isArray(value) && value.includes(el.value);
+          else if (el.type !== 'file' && typeof value === 'string') el.value = value;
+        });
+      });
+      document.getElementById('descriptionCount').textContent = (form.elements.businessDescription.value || '').length;
+      current = Math.max(0, Math.min(pages.length - 1, Number(saved.current) || 0));
+      setStatus('Previous draft restored. Re-select any files; browsers do not restore file uploads.');
+    } catch (e) {}
+  }
+  function validateCurrent() {
+    const required = [...pages[current].querySelectorAll('[required]')];
+    for (const el of required) {
+      if (el.type === 'checkbox') {
+        if (!el.checked) { el.focus(); setStatus('Please confirm the required checkbox before continuing.', true); return false; }
+      } else if (!el.value.trim()) {
+        el.focus();
+        el.reportValidity?.();
+        setStatus('Please complete the required fields before continuing.', true);
+        return false;
+      }
+    }
+    return true;
+  }
+  function buildReview() {
+    const data = collectData();
+    const fields = [
+      ['Business name', data.businessName],['Business type', data.businessType],
+      ['Contact person', data.contactPerson],['Phone / WhatsApp', data.phone],
+      ['Address', data.address],['Services', data.services],
+      ['Team profiles', data.teamProfiles],['Style preference', data.stylePreference],
+      ['Preferred colours', data.colors],['Main website goals', (data.goals || []).join(', ')]
+    ];
+    document.getElementById('reviewSummary').innerHTML = fields.map(([label,value]) =>
+      `<div class="review-item"><small>${escapeHTML(label)}</small><b>${escapeHTML(value || 'Not provided')}</b></div>`
+    ).join('');
+  }
+  function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+  function downloadSummary() {
+    if (!validateCurrent()) return;
+    const payload = collectData();
+    payload.note = 'Prototype only: this file was generated locally. Files are listed by name only, not embedded or uploaded.';
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${(payload.businessName || 'client').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}-onboarding.json`;
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    setStatus('Summary downloaded. This prototype has not submitted anything to VirtualGenieAI.');
+  }
+  nextBtn.addEventListener('click', () => {
+    if (current < pages.length - 1) {
+      if (!validateCurrent()) return;
+      current++; updateUI(); window.scrollTo({top:0,behavior:'smooth'});
+    } else downloadSummary();
+  });
+  backBtn.addEventListener('click', () => { current = Math.max(0,current-1); updateUI(); });
+  saveBtn.addEventListener('click', saveDraft);
+  navButtons.forEach(button => button.addEventListener('click', () => {
+    const target = Number(button.dataset.step);
+    if (target > current && !validateCurrent()) return;
+    current = target; updateUI();
+  }));
+  form.addEventListener('input', e => {
+    if (e.target.name === 'businessDescription') document.getElementById('descriptionCount').textContent = e.target.value.length;
+  });
+  form.querySelectorAll('input[type=file]').forEach(input => input.addEventListener('change', () => {
+    const display = document.querySelector(`[data-for="${input.name}"]`);
+    if (display) display.textContent = input.files.length ? [...input.files].map(f=>f.name).join(', ') : 'Choose file';
+  }));
+  const teamContainer = document.getElementById('teamMembers');
+  const teamTemplate = document.getElementById('teamMemberTemplate');
+  const addTeamMemberButton = document.getElementById('addTeamMember');
+
+  function renumberTeamMembers() {
+    [...teamContainer.querySelectorAll('.team-member-card')].forEach((card, index) => {
+      card.querySelector('.member-index').textContent = `TEAM MEMBER ${String(index + 1).padStart(2, '0')}`;
+      const name = card.querySelector('.member-name').value.trim();
+      card.querySelector('.member-card-title').textContent = name || `Team member ${index + 1}`;
+      card.querySelector('.remove-member').disabled = teamContainer.querySelectorAll('.team-member-card').length <= 1;
+    });
+  }
+  function addTeamMember() {
+    const fragment = teamTemplate.content.cloneNode(true);
+    const card = fragment.querySelector('.team-member-card');
+    const nameInput = card.querySelector('.member-name');
+    nameInput.addEventListener('input', renumberTeamMembers);
+    card.querySelector('.remove-member').addEventListener('click', () => {
+      if (teamContainer.querySelectorAll('.team-member-card').length <= 1) return;
+      card.remove(); renumberTeamMembers();
+    });
+    const photoInput = card.querySelector('.member-photo-input');
+    photoInput.addEventListener('change', () => {
+      const file = photoInput.files && photoInput.files[0];
+      const preview = card.querySelector('.member-photo-preview');
+      const fileName = card.querySelector('.member-photo-name');
+      if (!file) { preview.innerHTML = '<span>＋</span>'; fileName.textContent = 'No photo selected'; return; }
+      if (!file.type.startsWith('image/')) { photoInput.value = ''; fileName.textContent = 'Please select an image file'; return; }
+      const reader = new FileReader();
+      reader.onload = event => { preview.innerHTML = ''; const img = document.createElement('img'); img.alt = 'Team member portrait preview'; img.src = event.target.result; preview.appendChild(img); };
+      reader.readAsDataURL(file);
+      fileName.textContent = file.name;
+    });
+    teamContainer.appendChild(fragment);
+    renumberTeamMembers();
+  }
+  addTeamMemberButton.addEventListener('click', addTeamMember);
+  addTeamMember();
+
+  // Keep the review summary aware of the individual team profiles.
+  const originalBuildReview = buildReview;
+  buildReview = function() {
+    originalBuildReview();
+    const members = [...document.querySelectorAll('.team-member-card')].map((card, index) => {
+      const name = card.querySelector('.member-name').value.trim() || `Team member ${index + 1}`;
+      const role = card.querySelector('.member-role').value.trim();
+      const photo = card.querySelector('.member-photo-input').files[0];
+      return `<div class="review-item"><small>${escapeHTML('Team member ' + (index + 1))}</small><b>${escapeHTML(name)}${role ? ' · ' + escapeHTML(role) : ''}${photo ? ' · Photo selected' : ' · No photo selected'}</b></div>`;
+    }).join('');
+    document.getElementById('reviewSummary').insertAdjacentHTML('beforeend', members);
+  };
+
+  restoreDraft();
+  updateUI();
+})();
