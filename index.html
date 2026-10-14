@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050a18">
+  <title>Client Onboarding | VirtualGenieAI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="VirtualGenieAI home">
+      <img src="assets/virtualgenieai-logo.jpg" alt="VirtualGenieAI — AI in Motion">
+    </a>
+    <div class="topbar-right"><span>CLIENT PORTAL</span><div class="avatar">VG</div></div>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">YOUR VISION. OUR TECHNOLOGY.</p>
+        <h1>Let’s build your <span>website.</span></h1>
+        <p class="hero-copy">Share a few details about your clinic or business so we can create a website that fits your brand.</p>
+      </div>
+      <div class="hero-orbit" aria-hidden="true"><div class="orbit-ring"></div><div class="orbit-core">✦</div><span class="orbit-dot"></span></div>
+    </section>
+
+    <div class="workspace">
+      <aside class="steps-panel">
+        <div class="panel-kicker">YOUR PROJECT</div>
+        <nav id="stepNav" aria-label="Onboarding steps">
+          <button class="step active" data-step="0"><span class="step-num">1</span><span><b>Business details</b><small>Basic information</small></span></button>
+          <button class="step" data-step="1"><span class="step-num">2</span><span><b>Services</b><small>What you offer</small></span></button>
+          <button class="step" data-step="2"><span class="step-num">3</span><span><b>Team & profiles</b><small>People behind the business</small></span></button>
+          <button class="step" data-step="3"><span class="step-num">4</span><span><b>Images & files</b><small>Logo and photos</small></span></button>
+          <button class="step" data-step="4"><span class="step-num">5</span><span><b>Design preferences</b><small>Your style and ideas</small></span></button>
+          <button class="step" data-step="5"><span class="step-num">6</span><span><b>Review & submit</b><small>Check your details</small></span></button>
+        </nav>
+        <div class="privacy-note"><span>⌁</span><div><b>Your information matters</b><small>Only share files you have permission to use.</small></div></div>
+      </aside>
+
+      <section class="form-panel">
+        <div class="progress-row"><span id="stepCount">STEP 1 OF 6</span><div class="progress-track"><div id="progressFill"></div></div><b id="progressPercent">17%</b></div>
+        <form id="onboardingForm" novalidate>
+          <section class="form-step active" data-page="0">
+            <div class="section-heading"><div class="section-icon">⌂</div><div><h2>Business details</h2><p>Tell us the essentials about your business.</p></div></div>
+            <div class="fields two">
+              <label>Business / clinic name <em>*</em><input name="businessName" required placeholder="e.g. Smile Nest Dental Clinic"></label>
+              <label>Business type <em>*</em><select name="businessType" required><option value="">Select business type</option><option>Dental clinic</option><option>Hospital / healthcare</option><option>Other medical practice</option><option>Real estate</option><option>Home services</option><option>Professional services</option><option>Retail / hospitality</option><option>Other</option></select></label>
+              <label>Contact person <em>*</em><input name="contactPerson" required placeholder="e.g. Dr. John Doe"></label>
+              <label>Phone / WhatsApp <em>*</em><input name="phone" required inputmode="tel" placeholder="e.g. +91 98765 43210"></label>
+              <label class="full">Business address <em>*</em><input name="address" required placeholder="Street, town/city, state, PIN code"></label>
+              <label class="full">Google Maps link<input name="mapsLink" type="url" placeholder="Paste your Google Maps location link (optional)"></label>
+              <label class="full">Tell us about your business <em>*</em><textarea name="businessDescription" required maxlength="700" rows="4" placeholder="What do you do, who do you serve, and what makes you different?"></textarea><small class="field-hint"><span id="descriptionCount">0</span>/700 characters</small></label>
+            </div>
+          </section>
+
+          <section class="form-step" data-page="1">
+            <div class="section-heading"><div class="section-icon">✧</div><div><h2>Services</h2><p>Tell us what visitors should discover on your website.</p></div></div>
+            <div class="fields">
+              <label>List your main services <em>*</em><textarea name="services" required rows="5" placeholder="Add one service per line, e.g.&#10;Braces and aligners&#10;Dental implants&#10;Cosmetic dentistry"></textarea></label>
+              <label>Which services should stand out most?<input name="priorityServices" placeholder="Your most important or profitable services"></label>
+              <label>What should visitors do on the website? <em>*</em></label>
+              <div class="choice-grid">
+                <label class="choice"><input type="checkbox" name="goals" value="Call the business"><span>☎ Call the business</span></label>
+                <label class="choice"><input type="checkbox" name="goals" value="WhatsApp enquiry"><span>◉ WhatsApp enquiry</span></label>
+                <label class="choice"><input type="checkbox" name="goals" value="Book an appointment"><span>▦ Book an appointment</span></label>
+                <label class="choice"><input type="checkbox" name="goals" value="Showcase services"><span>✧ Showcase services</span></label>
+                <label class="choice"><input type="checkbox" name="goals" value="Build credibility"><span>✓ Build credibility</span></label>
+                <label class="choice"><input type="checkbox" name="goals" value="Get quote requests"><span>↗ Get quote requests</span></label>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-step" data-page="2">
+            <div class="section-heading"><div class="section-icon">♙</div><div><h2>Team & profiles</h2><p>Add the people and credentials you want featured.</p></div></div>
+            <div class="fields">
+              <label>Team member / doctor profiles<textarea name="teamProfiles" rows="5" placeholder="For each person, add:&#10;Name and qualifications&#10;Role / speciality&#10;Years of experience&#10;Short biography (optional)"></textarea></label>
+              <label>Accreditations, awards or credentials<textarea name="credentials" rows="3" placeholder="Any professional memberships, awards or credentials to display"></textarea></label>
+              <label>Social media links<input name="socialLinks" placeholder="Instagram, Facebook, LinkedIn, etc."></label>
+            </div>
+          </section>
+
+          <section class="form-step" data-page="3">
+            <div class="section-heading"><div class="section-icon">▧</div><div><h2>Images & files</h2><p>Select your logo and real photos. You can add multiple files.</p></div></div>
+            <div class="upload-grid">
+              <label class="upload-card"><input type="file" name="logoFiles" accept="image/*,.svg,.pdf"><span class="upload-symbol">✧</span><b>Business logo</b><small>SVG, PNG, JPG or PDF</small><span class="file-names" data-for="logoFiles">Choose file</span></label>
+              <label class="upload-card"><input type="file" name="photoFiles" accept="image/*" multiple><span class="upload-symbol">▧</span><b>Clinic / business photos</b><small>Interior, team, equipment, work</small><span class="file-names" data-for="photoFiles">Choose files</span></label>
+              <label class="upload-card"><input type="file" name="referenceFiles" accept="image/*,.pdf" multiple><span class="upload-symbol">↗</span><b>Design references</b><small>Examples you like (optional)</small><span class="file-names" data-for="referenceFiles">Choose files</span></label>
+            </div>
+            <p class="notice"><b>Prototype note:</b> files are only selected in this browser preview. They are not uploaded to a server yet. We'll connect secure storage before using this with real clients.</p>
+          </section>
+
+          <section class="form-step" data-page="4">
+            <div class="section-heading"><div class="section-icon">◈</div><div><h2>Design preferences</h2><p>Help us understand the look and feel you're aiming for.</p></div></div>
+            <div class="fields">
+              <label>Preferred style<select name="stylePreference"><option value="">Choose a style</option><option>Premium and elegant</option><option>Modern and minimal</option><option>Warm and welcoming</option><option>Bold and creative</option><option>Clean and clinical</option><option>Not sure — recommend one</option></select></label>
+              <label>Preferred colours<input name="colors" placeholder="e.g. navy and gold, sage green, blue and white"></label>
+              <label>Websites you like<textarea name="referenceWebsites" rows="3" placeholder="Paste any website links you like and tell us what you like about them"></textarea></label>
+              <label>Anything else we should know?<textarea name="extraNotes" rows="4" placeholder="Layout ideas, features, pages, inspiration or special requests"></textarea></label>
+            </div>
+          </section>
+
+          <section class="form-step" data-page="5">
+            <div class="section-heading"><div class="section-icon">✓</div><div><h2>Review & submit</h2><p>Check your details before sending them to our team.</p></div></div>
+            <div id="reviewSummary" class="review-summary"></div>
+            <label class="consent"><input type="checkbox" name="permission" required><span>I confirm that the information is accurate and that I have permission to share the submitted images and materials.</span></label>
+            <div class="notice"><b>Before going live:</b> this prototype saves a draft in this browser and prepares a downloadable JSON summary. It does not yet send your details to VirtualGenieAI. Server-side submission and image storage will be added in the next build stage.</div>
+          </section>
+
+          <div class="form-footer">
+            <button type="button" class="btn btn-quiet" id="backBtn" disabled>← Back</button>
+            <button type="button" class="btn btn-outline" id="saveBtn">↧ Save draft</button>
+            <button type="button" class="btn btn-primary" id="nextBtn">Continue <span>→</span></button>
+          </div>
+          <p id="statusMessage" class="status-message" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <aside class="right-column">
+        <section class="side-card checklist">
+          <h3>Your website checklist</h3><p>Keep these ready for a smoother setup.</p>
+          <div class="check-item"><span class="check-icon blue">▧</span><div><b>Logo</b><small>High-resolution logo file</small></div></div>
+          <div class="check-item"><span class="check-icon purple">◎</span><div><b>Real photos</b><small>Business, team and workspace</small></div></div>
+          <div class="check-item"><span class="check-icon green">☷</span><div><b>Services list</b><small>What you offer to customers</small></div></div>
+          <div class="check-item"><span class="check-icon amber">☎</span><div><b>Contact details</b><small>Phone, address and map link</small></div></div>
+        </section>
+        <section class="help-card"><div class="help-icon">♡</div><div><h3>Need help?</h3><p>Not sure what to add? Leave it blank and we'll follow up with you.</p><a href="https://wa.me/" target="_blank" rel="noreferrer">Contact us on WhatsApp ↗</a></div></section>
+        <div class="secure-note">⌁ &nbsp; Your details are used to prepare your website project.</div>
+      </aside>
+    </div>
+    <footer>© <span id="year"></span> VirtualGenieAI <span>·</span> AI. IN MOTION.</footer>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
